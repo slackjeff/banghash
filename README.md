@@ -18,7 +18,4 @@ echo "${user}:${hash}" >> bd.txt
 ```
 
 ### Verificar se senha bate com BD.
-
-``` sh
-
-```
+Pegue a senha de entrada, concatene com o salt do usuário no bd e gere uma hash e faça um comparação.
