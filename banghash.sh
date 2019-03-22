@@ -5,7 +5,7 @@
 
 #=========VARIÁVEIS
 salt_size='8' # Tamanho que terá o salt
-
+delimiter=':'
 
 #=========FUNÇOES
 
@@ -20,5 +20,6 @@ BANG()
     # Gerando sal randômico
     SALT="$(head /dev/urandom | tr -dc "[:graph:] [:alnum:]" | head -c "$salt_size"; echo)"
     # Printa pra noix
+    printf "${SALT}${delimiter}"
     printf "${PASSWORD}${SALT}" | sha256sum | cut -d ' ' -f 1
 }
