@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+######################################################################
+# Módulo para gerar Hash + Salt. Ideal para logins que utilizam o
+# Texto plano para armazenar senhas.
+######################################################################
+
+# Função para gerar a hash com salt
+# de acordo com o argumento passado
+BANG() {
+
+    sha256() {
+        local HASH="$(printf '%s' "$1" | sha256sum)"
+
+        # printa e remove o " - " depois da hash
+        printf '%s' "${HASH%% *}"
+    }
+
+    local salt_size='8'
+    local delimiter='$'
+    local PASSWORD="$1"
+
+    # senha nula quebra o processo
+    [[ -z "$PASSWORD" ]] && { printf '%s' "The input parameter is null."; return 1 ;}
+
+    ### Gerando salt randômico ###
+
+    # renderiza unicodes aleatórios
+    SALT="$(head /dev/urandom)"
+
+    # removendo o delimitador do salt para não confundir o usuário
+    SALT="${SALT//"$delimiter"/}"
+
+    # renderizando somente ascii e cortando até $salt_size
+    SALT="${SALT//[^[:graph:][:alnum:]]/}"
+    SALT="${SALT:0:"$salt_size"}"
+
+    PASSWORDSALT="$(sha256 "${PASSWORD}${SALT}")" # sha256(pass+salt)
+
+    # caso queira somente 1 salt, comente o próximo cálculo e deixe somente este
+    printf '%s\n' "${SALT}${delimiter}${PASSWORDSALT}" # salt$hash(pass+salt)
+
+
+    # caso queira uma hash composta por salt, descomente os próximos cálculos e comente o printf anterior
+    #PASSWORDSALT="$(sha256 "${PASSWORDSALT}${SALT}")" # sha256(sha256(pass+salt)+salt)
+
+    #printf '%s\n' "${SALT}${delimiter}${PASSWORDSALT}" # salt$hash(hash(pass+salt)+salt)
+
+} 2>&- # 2>&- joga stderr pro background pra não
+       # exibir erro de substituição de null byte
+
+# Carregamento módulo
+read -p "Usuario: " user
+read -p "Senha: " pass
+
+# Gerando Hash com salt
+hash=$(BANG "$pass")
+
+# Enviando para Banco
+echo "${user}:${hash}"
