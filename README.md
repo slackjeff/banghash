@@ -1,3 +1,8 @@
+
+<div align="center">
+<img width=”200" height=”200" src="banghash.png" alt=”Banner” style="width:100%">
+</div>
+
 # banghash
 
 Exemplo de uso:
